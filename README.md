@@ -24,3 +24,11 @@ August是一款可以将手机上的短信转发到指定邮箱的app,如果你�
 ## Tips
 
 - [安卓UI设计库](https://gamedun.github.io/-----https://github.com/wasabeef/awesome-android-ui)
+- [material图标库](https://github.com/google/material-design-icons)
+- [material输入框](https://github.com/rengwuxian/MaterialEditText)
+- [自动隐藏的浮动按钮](https://github.com/makovkastar/FloatingActionButton)
+- [MaterialSheetFab](https://github.com/gowong/material-sheet-fab)
+- [带图标的图标输入框](https://github.com/florent37/MaterialTextField)
+- [app刚进入提示使用](https://github.com/sjwall/MaterialTapTargetPrompt)
+- [滚动列表下拉菜单](https://github.com/traex/ExpandableLayout)
+- [app首次安装的滑动介绍](https://github.com/sacot41/SCViewPager)
