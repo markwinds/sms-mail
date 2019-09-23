@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">August</string>
+    <string name="itemdeleted">Mail deleted</string>
+    <string name="taptoundo">Tap to undo</string>
 </resources>
