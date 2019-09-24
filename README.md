@@ -15,6 +15,9 @@ August是一款可以将手机上的短信转发到指定邮箱的app,如果你�
 - 在后台监听短信
 - 界面的美化设计
 - 状态栏提醒
+- 首次打开app的使用介绍
+- 输入合法检测
+- github release google play
 
 ## bug
 
