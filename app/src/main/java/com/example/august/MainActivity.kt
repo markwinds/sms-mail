@@ -27,31 +27,50 @@ import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAd
 import java.util.*
 import android.widget.AdapterView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
+import com.gordonwong.materialsheetfab.AnimatedFab
+import com.gordonwong.materialsheetfab.MaterialSheetFab
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener
 
 import com.nhaarman.listviewanimations.ArrayAdapter
-
-
-
-
-
-
-
-
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    val s1 = List(5) { MailItem() }
+    //private lateinit var materialSheetFab:MaterialSheetFab
+
+    val s1 = List(50) { MailItem() }
     val s2 = List(5) { MailItem("good",false) }
 
     val datas = s1+s2
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /***fab***/
+        var fab = findViewById<Fab>(R.id.fab)
+        var sheetView = findViewById<View>(R.id.fab_sheet)
+        var overlay = findViewById<View>(R.id.overlay)
+        var sheetColor = getResources().getColor(R.color.fab_sheet_color)
+        var fabColor = getResources().getColor(R.color.fab_color)
+        val materialSheetFab = MaterialSheetFab(fab, sheetView, overlay, sheetColor, fabColor)
+
+        var configButton=findViewById<View>(R.id.fab_sheet_item_config)
+        var creatButton=findViewById<View>(R.id.fab_sheet_item_add)
+        configButton.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                //Your code here
+            }})
+        creatButton.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                //Your code here
+            }})
+
+
+        /*****listview***/
         var mDynamicListView=findViewById<DynamicListView>(R.id.dynamiclistview)//找到listview
         var myAdapter=MailAdapter(this,datas,R.layout.itemrow_gripview)//创建自己的适配器
 
@@ -68,9 +87,22 @@ class MainActivity : AppCompatActivity() {
         mDynamicListView.setOnItemLongClickListener(MyOnItemLongClickListener(mDynamicListView))//长按操作
 
         mDynamicListView.enableSimpleSwipeUndo()//使能撤销
-        mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView));
+        mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView))
+
+
+
 
     }//onCreat
+
+    //返回键,收回按键列表
+//    override fun onBackPressed() {
+//        if (materialSheetFab!!.isSheetVisible()) {
+//			materialSheetFab!!.hideSheet();
+//		} else {
+//			super.onBackPressed()
+//		}
+//    }
+
 
     //控制删除操作的类，OnDismissCallback是简单的删除处理，见官方教程
     private inner class MyOnDismissCallback internal constructor(private val mAdapter: com.nhaarman.listviewanimations.ArrayAdapter<MailItem>) :
