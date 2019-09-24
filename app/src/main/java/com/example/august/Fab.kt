@@ -12,8 +12,8 @@ import com.gordonwong.materialsheetfab.AnimatedFab
 
 
 class Fab : FloatingActionButton,AnimatedFab{
-    constructor(mContext:Context) : super(mContext)//次构造函数
-    constructor(mContext:Context,attrs:AttributeSet) : super(mContext,attrs)//次构造函数
+    constructor(mContext:Context) : super(mContext) // 次构造函数
+    constructor(mContext:Context,attrs:AttributeSet) : super(mContext,attrs) // 次构造函数
     constructor(mContext:Context,attrs:AttributeSet,defStyleAttr:Int) : super(mContext,attrs,defStyleAttr)
 
     private val FAB_ANIM_DURATION:Long = 200
@@ -31,7 +31,6 @@ class Fab : FloatingActionButton,AnimatedFab{
 			// Pivots indicate where the animation begins from
 			var pivotX = getPivotX() + translationX
 			var pivotY = getPivotY() + translationY
-
 			var anim:ScaleAnimation
 			// If pivots are 0, that means the FAB hasn't been drawn yet so just use the
 			// center of the FAB
@@ -41,7 +40,6 @@ class Fab : FloatingActionButton,AnimatedFab{
 			} else {
 				anim = ScaleAnimation(0f, 1f, 0f, 1f, pivotX, pivotY);
 			}
-
 			// Animate FAB expanding
 			anim.setDuration(FAB_ANIM_DURATION);
 			anim.setInterpolator(getInterpolator());
@@ -55,7 +53,6 @@ class Fab : FloatingActionButton,AnimatedFab{
 		if (getVisibility() == View.VISIBLE) {
 			var pivotX = getPivotX() + getTranslationX();
 			var pivotY = getPivotY() + getTranslationY();
-
 			var anim = ScaleAnimation(1.toFloat(), 0.toFloat(), 1.toFloat(), 0.toFloat(), pivotX, pivotY);
 			anim.setDuration(FAB_ANIM_DURATION);
 			anim.setInterpolator(getInterpolator())

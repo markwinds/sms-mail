@@ -33,10 +33,10 @@ import android.widget.CompoundButton
 class MailAdapter internal  constructor(private val mContext:Context, private var datas:List<MailItem>,private val layoutId:Int):
         ArrayAdapter<MailItem>(datas), UndoAdapter {
 
-    //用来存放view中控件id的类
+    /**用来存放view中控件id的类*/
     class ViewHolder{
-        var mailName:TextView?=null //用来存放text的id
-        var switchButton:SwitchButton?=null//存放button的id
+        var mailName:TextView?=null // 用来存放text的id
+        var switchButton:SwitchButton?=null // 存放button的id
     }
 
     override fun getItemId(position: Int): Long {
@@ -47,53 +47,53 @@ class MailAdapter internal  constructor(private val mContext:Context, private va
         return true
     }
 
-    //得到取消删除的那个对话框
+    /**得到取消删除的那个对话框*/
     override fun getUndoView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView//如果已经在缓存中就直接返回
-        if (view == null) {//如果不再缓存中就加载
+        var view = convertView // 如果已经在缓存中就直接返回
+        if (view == null) { // 如果不再缓存中就加载
             view = LayoutInflater.from(mContext).inflate(com.example.august.R.layout.undo_row, parent, false)
         }
         return view as View
     }
 
-    //得到取消按键的id
+    /**得到取消按键的id*/
     override fun getUndoClickView(view: View): View {
         return view.findViewById(com.example.august.R.id.undo_row_undobutton)
     }
 
-    //得到要加载的view
+    /**得到要加载的view*/
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        var viewBeLoad=convertView//获得即将被加载的view
-        var viewHolder=ViewHolder()//用来存放view的一些信息
-        var nowData=getItem(position)//得到要存入view的数据
+        var viewBeLoad=convertView // 获得即将被加载的view
+        var viewHolder=ViewHolder() // 用来存放view的一些信息
+        var nowData=getItem(position) // 得到要存入view的数据
 
-        if (viewBeLoad==null){//如果这个view里是空的，就是从未被加载过
-            viewBeLoad=LayoutInflater.from(mContext).inflate(layoutId,parent,false)//得到这个view
-            viewHolder.mailName=viewBeLoad.findViewById(com.example.august.R.id.textView_receive_mail)//获得这个view的text的id
-            viewHolder.switchButton=viewBeLoad.findViewById(com.example.august.R.id.switch_button)//获得button的id
+        if (viewBeLoad==null){ // 如果这个view里是空的，就是从未被加载过
+            viewBeLoad=LayoutInflater.from(mContext).inflate(layoutId,parent,false) // 得到这个view
+            viewHolder.mailName=viewBeLoad.findViewById(com.example.august.R.id.textView_receive_mail) // 获得这个view的text的id
+            viewHolder.switchButton=viewBeLoad.findViewById(com.example.august.R.id.switch_button) // 获得button的id
             viewBeLoad.tag=viewHolder
-            viewHolder.mailName!!.text=nowData!!.mail//将当前的mail信息放入text
+            viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
             if(nowData.choosed){
-                viewHolder.switchButton!!.setChecked(true)//如果选中就显示选中
+                viewHolder.switchButton!!.setChecked(true) // 如果选中就显示选中
             }else{
                 viewHolder.switchButton!!.setChecked(false)
             }
-        }else{//如果已经被加载过
-            viewHolder=viewBeLoad!!.tag as ViewHolder//将从view中取出的数据存入viewHolder
-            viewHolder.mailName!!.text=nowData!!.mail//将当前的mail信息放入text
+        }else{ // 如果已经被加载过
+            viewHolder=viewBeLoad!!.tag as ViewHolder // 将从view中取出的数据存入viewHolder
+            viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
             if(nowData.choosed){
-                viewHolder.switchButton!!.setChecked(true)//如果选中就显示选中
+                viewHolder.switchButton!!.setChecked(true) // 如果选中就显示选中
             }else{
                 viewHolder.switchButton!!.setChecked(false)
             }
         }
         viewHolder.switchButton!!.setOnCheckedChangeListener { buttonView, isChecked ->
-            MainActivity.toggleSwitch(position)//点击反转数据
+            MainActivity.toggleSwitch(position) // 点击反转数据
         }
 
-        return viewBeLoad as View//将非空的viewBeLoad返回，下次这个item进入屏幕作为convertView传入
-    }//getView
-}//class
+        return viewBeLoad as View // 将非空的viewBeLoad返回，下次这个item进入屏幕作为convertView传入
+    } // getView
+} // class
 
 
 /************官方例程************/
