@@ -1,14 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--&lt;!&ndash; 允许放入两个控件，第一个是主屏幕，第二个是菜单，就是侧划 &ndash;&gt;-->
+<!--<android.support.v4.widget.DrawerLayout-->
+<!--    android:id="@+id/drawer_layout"-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent">-->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <com.nhaarman.listviewanimations.itemmanipulation.DynamicListView
-        android:id="@+id/dynamiclistview"
+    <!-- 智能layout 防遮挡 -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!--- 智能菜单栏，自动缩回 -->
+<!--        <com.google.android.material.appbar.AppBarLayout-->
+<!--            android:id="@+id/appbar"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            &lt;!&ndash; Toolbar &ndash;&gt;-->
+<!--            <androidx.appcompat.widget.Toolbar-->
+<!--                android:id="@+id/toolbar"-->
+<!--                style="@style/Widget.MaterialSheetFab.ToolBar"-->
+<!--                android:layout_height="match_parent" />-->
+
+<!--            &lt;!&ndash; Tabs 划动页面 &ndash;&gt;-->
+<!--            &lt;!&ndash;            <com.google.android.material.tabs.TabLayout&ndash;&gt;-->
+<!--            &lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--            &lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--            &lt;!&ndash;            style="@style/Widget.MaterialSheetFab.TabLayout"&ndash;&gt;-->
+<!--            &lt;!&ndash;                android:id="@+id/tabs"/>&ndash;&gt;-->
+<!--        </com.google.android.material.appbar.AppBarLayout>-->
+
+        <com.nhaarman.listviewanimations.itemmanipulation.DynamicListView
+            android:id="@+id/dynamiclistview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/appbar" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- Your FAB implementation -->
+    <com.example.august.Fab
+        android:id="@+id/fab"
+        style="@style/Widget.MaterialSheetFab.Fab"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"/>
+
+    <!-- Overlay that dims the screen -->
+    <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Circular reveal container for the sheet -->
+    <io.codetail.widget.RevealLinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="end|bottom"
+        android:orientation="vertical">
+
+        <!-- Sheet that contains your items -->
+        <androidx.cardview.widget.CardView
+            style="@style/Widget.MaterialSheetFab.Sheet"
+            android:id="@+id/fab_sheet">
+
+            <!-- Sheet items -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/background_card"
+                android:orientation="vertical">
+
+                <!--  -->
+                <TextView
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:id="@+id/fab_sheet_item_config"
+                    android:drawableStart="@drawable/ic_fab_item_config"
+                    android:text="@string/config" />
+
+
+<!--                &lt;!&ndash; Photo &ndash;&gt;-->
+<!--                <TextView-->
+<!--                    android:id="@+id/fab_sheet_item_photo"-->
+<!--                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"-->
+<!--                    android:drawableLeft="@drawable/ic_photo_camera_grey600_24dp"-->
+<!--                    android:drawableStart="@drawable/ic_photo_camera_grey600_24dp"-->
+<!--                    android:text="@string/photo" />-->
+
+<!--                &lt;!&ndash; Note &ndash;&gt;-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/theme_accent">
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:id="@+id/fab_sheet_item_add"
+                        android:drawableStart="@drawable/ic_fab_item_creat"
+                        android:text="@string/add" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </io.codetail.widget.RevealLinearLayout>
+
+    <!-- Snackbar 下部提示框-->
+<!--    <LinearLayout-->
+<!--        android:id="@+id/snackbar"-->
+<!--        style="@style/Widget.MaterialSheetFab.Snackbar"-->
+<!--        android:layout_alignParentBottom="true">-->
+
+<!--        <TextView-->
+<!--            style="@style/TextAppearance.MaterialSheetFab.Snackbar.Message"-->
+<!--            android:text="@string/snackbar_shared_msg" />-->
+
+<!--        <TextView-->
+<!--            style="@style/TextAppearance.MaterialSheetFab.Snackbar.Action"-->
+<!--            android:text="@string/view" />-->
+<!--    </LinearLayout>-->
+</RelativeLayout>
+
+<!--    <android.support.design.widget.NavigationView-->
+<!--        android:id="@+id/navigation_view"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_gravity="start"-->
+<!--        app:headerLayout="@layout/layout_drawer_header" />-->
+
+<!--</android.support.v4.widget.DrawerLayout>-->
+
+
+
+
+
+
+
