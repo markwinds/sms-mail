@@ -21,6 +21,10 @@ import android.widget.AdapterView
 import androidx.annotation.NonNull
 import android.widget.TextView
 import android.widget.Toast
+import com.example.august.MainActivity
+import android.widget.CompoundButton
+
+
 
 /**
  * 1.邮件地址显示的listView适配器
@@ -83,6 +87,10 @@ class MailAdapter internal  constructor(private val mContext:Context, private va
                 viewHolder.switchButton!!.setChecked(false)
             }
         }
+        viewHolder.switchButton!!.setOnCheckedChangeListener { buttonView, isChecked ->
+            MainActivity.toggleSwitch(position)//点击反转数据
+        }
+
         return viewBeLoad as View//将非空的viewBeLoad返回，下次这个item进入屏幕作为convertView传入
     }//getView
 }//class

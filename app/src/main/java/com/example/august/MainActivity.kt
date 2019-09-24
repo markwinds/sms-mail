@@ -1,5 +1,6 @@
 package com.example.august
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter
@@ -22,18 +23,35 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.preference.PreferenceManager
+import android.text.InputType
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.widget.*
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter
 import java.util.*
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.bottomsheets.BottomSheet
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.input.getInputField
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
+import com.example.august.MainActivity.Companion.mailList
+import com.example.august.lib.TinyDB
+import com.google.gson.Gson
 import com.gordonwong.materialsheetfab.AnimatedFab
 import com.gordonwong.materialsheetfab.MaterialSheetFab
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener
 
 import com.nhaarman.listviewanimations.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONArray
+import kotlin.collections.ArrayList
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 
 class MainActivity : AppCompatActivity() {
@@ -45,12 +63,39 @@ class MainActivity : AppCompatActivity() {
 
     val datas = s1+s2
 
+    var serverName:String?=null
+    var sendMialAddress:String?=null
+    var mailPassword:String?=null
+
+    companion object{
+        lateinit var mailList:List<MailItem>
+        fun toggleSwitch(position:Int){
+            mailList[position].choosed=!mailList[position].choosed
+        }
+    }
+
+
+    lateinit var  mDynamicListView:DynamicListView
+
+    lateinit var tinydb:TinyDB//不能放在外面初始化
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /***fab***/
+        /**************第一次启动判断*************/
+        var pref=getSharedPreferences("firstBoot", Context.MODE_PRIVATE)
+        var firstBoot=pref.getBoolean("booted",true)
+        if (firstBoot){//如果是第一次启动
+            var editor=pref.edit()
+            //editor.putBoolean("booted",false)//标记为不是第一次启动
+
+        }
+
+        /********初始化存储结构体***********/
+        tinydb= TinyDB(getSharedPreferences("mailList", Context.MODE_PRIVATE))
+        loadMailList()//载入邮件
+        /***********fab**************/
         var fab = findViewById<Fab>(R.id.fab)
         var sheetView = findViewById<View>(R.id.fab_sheet)
         var overlay = findViewById<View>(R.id.overlay)
@@ -62,48 +107,114 @@ class MainActivity : AppCompatActivity() {
         var creatButton=findViewById<View>(R.id.fab_sheet_item_add)
         configButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                //Your code here
+                configMail()
             }})
         creatButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                //Your code here
+                getMailAddress()
             }})
 
-
-        /*****listview***/
-        var mDynamicListView=findViewById<DynamicListView>(R.id.dynamiclistview)//找到listview
-        var myAdapter=MailAdapter(this,datas,R.layout.itemrow_gripview)//创建自己的适配器
-
-        var simpleSwipeUndoAdapter=SimpleSwipeUndoAdapter(myAdapter, this@MainActivity, MyOnDismissCallback(myAdapter))//为适配器添加删除操作
-        val animAdapter = AlphaInAnimationAdapter(simpleSwipeUndoAdapter)//添加显示动画
-        animAdapter.setAbsListView(mDynamicListView)//设置适配器
-        assert(animAdapter.viewAnimator != null)
-        animAdapter.viewAnimator!!.setInitialDelayMillis(1)//设置取消操作延迟时间
-        mDynamicListView.setAdapter(animAdapter)//设置适配器
-
-        mDynamicListView.enableDragAndDrop()//使能拖拽
-        mDynamicListView.setDraggableManager(TouchViewDraggableManager(R.id.textView_receive_mail))//可以拖拽的位置
-        mDynamicListView.setOnItemMovedListener(MyOnItemMovedListener(myAdapter as ArrayAdapter<MailItem>))//移动监听
-        mDynamicListView.setOnItemLongClickListener(MyOnItemLongClickListener(mDynamicListView))//长按操作
-
-        mDynamicListView.enableSimpleSwipeUndo()//使能撤销
-        mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView))
-
-
+        /***************listview*****************/
+        mDynamicListView=findViewById<DynamicListView>(R.id.dynamiclistview)//找到listview
+        if(mailList.isNotEmpty())//不为空才初始化，防止空报错
+            initListView()
 
 
     }//onCreat
 
-    //返回键,收回按键列表
-//    override fun onBackPressed() {
-//        if (materialSheetFab!!.isSheetVisible()) {
-//			materialSheetFab!!.hideSheet();
-//		} else {
-//			super.onBackPressed()
-//		}
-//    }
+    override fun onPause() {
+        saveMailList()//保存数据,当活动的内存被清理的时候，也就是list清空之前
+        super.onPause()
+    }
+
+    /*******************************************数据的存储操作************************************************/
+    //保存发送邮箱的设置
+    fun saveMailConfig(){
+        var editor=getSharedPreferences("mailConfig", Context.MODE_PRIVATE).edit()//创建一个可以用来存放键值的editor,保存的文件名为mailConfig
+        editor.putString("serverName",serverName)
+        editor.putString("sendMialAddress",sendMialAddress)
+        editor.putString("mailPassword",mailPassword)
+        editor.apply()//提交保存
+    }
+
+    //读取发送邮箱的设置
+    fun loadMailConfig(){
+        var pref=getSharedPreferences("mailConfig", Context.MODE_PRIVATE)//把文件读取到pref
+        serverName=pref.getString("serverName",null)//如果该值不存在就返回null
+        sendMialAddress=pref.getString("sendMialAddress",null)
+        mailPassword=pref.getString("mailPassword",null)
+    }
+
+    //保存邮件列表
+    fun saveMailList(){
+        var list=mailList//防止mailList被其他线程修改
+        if(list!=null)
+            tinydb.putListObject("mailList", list as ArrayList<Any>)
+    }
+
+    //加载邮件列表
+    fun loadMailList(){
+        mailList= tinydb.getListObject("mailList", MailItem::class.java) as List<MailItem>
+    }
 
 
+
+/***************************************dialog操作函数******************************************/
+    fun getMailAddress(){//添加邮件
+        MaterialDialog(this).show {
+            title(R.string.putinmail)//标题
+            input(allowEmpty = false,hintRes = R.string.hint,inputType= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) { dialog, text ->
+                var mailAddress=getInputField().text.toString()//获取邮件地址
+                if(mailList.isNotEmpty())
+                    mDynamicListView.insert(0, MailItem(mailAddress,false))//更新列表
+                else{
+                    mailList+=MailItem(mailAddress,true)//初始化列表
+                    initListView()//初始化listview
+                }
+            }
+            positiveButton(R.string.submit)
+            negativeButton(android.R.string.cancel)
+            cornerRadius(10f)//角半径
+        }
+    }
+
+    fun configMail(){//修改邮件
+        MaterialDialog(this@MainActivity, BottomSheet()).show {
+            customView(R.layout.custom_view, scrollable = true, horizontalPadding = true)//布局文件必须放在最前面，不然后面findViewById会返回空
+            cornerRadius(20f)//角半径
+            loadMailConfig()
+            var checkBox=findViewById<CheckBox>(R.id.showPassword)
+            var passwordEdit=findViewById<EditText>(R.id.password)
+            var serverEdit=findViewById<EditText>(R.id.server_name)
+            var mailEdit=findViewById<EditText>(R.id.mail_address)
+            if (serverName!=null)
+                serverEdit.setText(serverName)
+            if (sendMialAddress!=null)
+                mailEdit.setText(sendMialAddress)
+            if (mailPassword!=null)
+                passwordEdit.setText(mailPassword)
+            checkBox.setOnClickListener(object : View.OnClickListener{
+                override fun onClick(v: View?) {
+                    if(checkBox.isChecked)
+                        passwordEdit.setTransformationMethod(HideReturnsTransformationMethod.getInstance())
+                    else
+                        passwordEdit.setTransformationMethod(PasswordTransformationMethod.getInstance())
+                }})
+            title(R.string.configmail)
+            positiveButton(R.string.save) { dialog ->
+                //按下保存键的操作
+                serverName=serverEdit.text.toString()
+                sendMialAddress=mailEdit.text.toString()
+                mailPassword=passwordEdit.text.toString()
+                saveMailConfig()//确认之后存放数据
+            }
+            negativeButton(android.R.string.cancel)
+
+        }
+    }
+
+
+/***********************************************ListView操作函数*****************************************************/
     //控制删除操作的类，OnDismissCallback是简单的删除处理，见官方教程
     private inner class MyOnDismissCallback internal constructor(private val mAdapter: com.nhaarman.listviewanimations.ArrayAdapter<MailItem>) :
         OnDismissCallback {
@@ -179,6 +290,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun initListView(){
 
+        var myAdapter=MailAdapter(this,mailList as List<MailItem>,R.layout.itemrow_gripview)//创建自己的适配器
 
+        var simpleSwipeUndoAdapter=SimpleSwipeUndoAdapter(myAdapter, this@MainActivity, MyOnDismissCallback(myAdapter))//为适配器添加删除操作
+        val animAdapter = AlphaInAnimationAdapter(simpleSwipeUndoAdapter)//添加显示动画
+        animAdapter.setAbsListView(mDynamicListView)//设置适配器
+        assert(animAdapter.viewAnimator != null)
+        animAdapter.viewAnimator!!.setInitialDelayMillis(1)//设置取消操作延迟时间
+        mDynamicListView.setAdapter(animAdapter)//设置适配器
+
+        mDynamicListView.enableDragAndDrop()//使能拖拽
+        mDynamicListView.setDraggableManager(TouchViewDraggableManager(R.id.textView_receive_mail))//可以拖拽的位置
+        mDynamicListView.setOnItemMovedListener(MyOnItemMovedListener(myAdapter as ArrayAdapter<MailItem>))//移动监听
+        mDynamicListView.setOnItemLongClickListener(MyOnItemLongClickListener(mDynamicListView))//长按操作
+
+        mDynamicListView.enableSimpleSwipeUndo()//使能撤销
+        mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView))
+    }
 }
