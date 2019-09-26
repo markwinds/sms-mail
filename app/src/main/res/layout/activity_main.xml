@@ -51,7 +51,7 @@
         style="@style/Widget.MaterialSheetFab.Fab"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"/>
+        android:layout_margin="@dimen/sheet_spacing"/>
 
     <!-- Overlay that dims the screen -->
     <com.gordonwong.materialsheetfab.DimOverlayFrameLayout

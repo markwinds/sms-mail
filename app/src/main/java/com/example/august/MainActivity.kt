@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
             input(allowEmpty = false,hintRes = R.string.hint,inputType= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) { dialog, text -> // 加载自定义布局
                 var mailAddress=getInputField().text.toString() // 获取输入的邮件地址
                 if(mailList.isNotEmpty()) // 如果此时列表不为空就直接用listview的方法添加
-                    mDynamicListView.insert(0, MailItem(mailAddress,false)) // 更新列表
+                    mDynamicListView.insert(0, MailItem(mailAddress,true)) // 更新列表
                 else{ // 当列表为空表示vistview还没有被创建,所以手动添加列表并创建listview
                     mailList+=MailItem(mailAddress,true) // 初始化列表
                     initListView() // 初始化listview
