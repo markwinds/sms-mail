@@ -19,6 +19,9 @@
     <color name="text_black_87">#de000000</color>
     <color name="text_white_87">#deFFFFFF</color>
 
+    <color name="list_background">#b7b7b7</color>
+
+
     <array name="note_neutral_colors">
         <item>#9E9E9E</item>
         <item>#455A64</item>

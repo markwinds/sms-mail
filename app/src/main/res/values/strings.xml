@@ -11,7 +11,7 @@
     <string name="putinmail">Put in you mail address that you want receive mail.</string>
     <string name="configmail">Setting</string>
     <string name="showPassword">Show password</string>
-    <string name="serverhint">Server like: stmp.gmail.com</string>
+    <string name="serverhint">Server like: smtp.gmail.com</string>
     <string name="mailhint">Mail address like: mark@gmail.com</string>
     <string name="passwordhint">Password</string>
     <string name="servername">Server</string>
