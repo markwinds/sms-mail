@@ -72,23 +72,19 @@ class MailAdapter internal  constructor(private val mContext:Context, private va
             viewHolder.mailName=viewBeLoad.findViewById(com.example.august.R.id.textView_receive_mail) // 获得这个view的text的id
             viewHolder.switchButton=viewBeLoad.findViewById(com.example.august.R.id.switch_button) // 获得button的id
             viewBeLoad.tag=viewHolder
-            viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
-            if(nowData.choosed){
-                viewHolder.switchButton!!.setChecked(true) // 如果选中就显示选中
-            }else{
-                viewHolder.switchButton!!.setChecked(false)
-            }
         }else{ // 如果已经被加载过
             viewHolder=viewBeLoad!!.tag as ViewHolder // 将从view中取出的数据存入viewHolder
-            viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
-            if(nowData.choosed){
-                viewHolder.switchButton!!.setChecked(true) // 如果选中就显示选中
-            }else{
-                viewHolder.switchButton!!.setChecked(false)
-            }
         }
         viewHolder.switchButton!!.setOnCheckedChangeListener { buttonView, isChecked ->
-            MainActivity.toggleSwitch(position) // 点击反转数据
+
+            MainActivity.toggleSwitch(position,isChecked) // 点击反转数据
+        }
+
+        viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
+        if(nowData.choosed){
+            viewHolder.switchButton!!.setChecked(true) // 如果选中就显示选中
+        }else{
+            viewHolder.switchButton!!.setChecked(false)
         }
 
         return viewBeLoad as View // 将非空的viewBeLoad返回，下次这个item进入屏幕作为convertView传入

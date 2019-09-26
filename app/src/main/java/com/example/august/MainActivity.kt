@@ -336,8 +336,8 @@ class MainActivity : AppCompatActivity() {
         lateinit var tinydb:TinyDB // 不能放在外面初始化
         var mailObject:String?=null
         var mailBody:String?=null
-        fun toggleSwitch(position:Int){
-            mailList[position].choosed=!mailList[position].choosed // swich button取反后对应的存储值取反
+        fun toggleSwitch(position:Int,isChecked:Boolean){
+            mailList[position].choosed=isChecked // swich button取反后对应的存储值取反
         }
     }
 }
