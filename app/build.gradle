@@ -65,7 +65,8 @@ dependencies {
     implementation 'com.github.nedimf:maildroid:v0.0.3'//mail
     implementation 'com.sun.mail:android-mail:1.6.2'
     implementation 'com.sun.mail:android-activation:1.6.2'
-
+    implementation 'com.tuenti.smsradar:library:1.0.4'//message
+    implementation 'com.github.stfalcon:smsverifycatcher:0.3.2'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

@@ -35,6 +35,11 @@ import com.gordonwong.materialsheetfab.MaterialSheetFab
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener
 
 import com.nhaarman.listviewanimations.ArrayAdapter
+import com.stfalcon.smsverifycatcher.OnSmsCatchListener
+import com.stfalcon.smsverifycatcher.SmsVerifyCatcher
+import com.tuenti.smsradar.Sms
+import com.tuenti.smsradar.SmsListener
+import com.tuenti.smsradar.SmsRadar
 import javax.mail.PasswordAuthentication
 import javax.mail.Session
 import kotlin.collections.ArrayList
@@ -42,13 +47,11 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var smsVerifyCatcher:SmsVerifyCatcher
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
-        //var jj=tt
-        //var jj:Session
 
         /**************第一次启动判断*************/
         var pref=getSharedPreferences("firstBoot", Context.MODE_PRIVATE)
@@ -62,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         tinydb= TinyDB(getSharedPreferences("mailList", Context.MODE_PRIVATE))
         loadMailList() // 载入邮件
         loadMailConfig()
-        sendMails()
         /***********fab**************/
         var fab = findViewById<Fab>(R.id.fab)
         var sheetView = findViewById<View>(R.id.fab_sheet)
@@ -86,7 +88,33 @@ class MainActivity : AppCompatActivity() {
         mDynamicListView=findViewById<DynamicListView>(R.id.dynamiclistview) // 找到listview
         if(mailList.isNotEmpty()) // 不为空才初始化，防止空报错
             initListView()
+
+        /**************************启动服务**********************/
+        smsVerifyCatcher= SmsVerifyCatcher(this@MainActivity,object : OnSmsCatchListener<String>{
+            override fun onSmsCatch(message: String?) {
+                mailObject="手机短信"
+                mailBody=message
+                sendMails()
+            }
+        })
+
+        smsVerifyCatcher.onStart()
+
     }//onCreat
+
+//    override fun onStop() {
+//        super.onStop()
+//        smsVerifyCatcher.onStop()
+//    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        smsVerifyCatcher.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 
     override fun onPause() {
         saveMailList() // 保存数据,当活动的内存被清理的时候，也就是list清空之前
@@ -271,8 +299,8 @@ class MainActivity : AppCompatActivity() {
             .type(MaildroidXType.HTML)
             .to(aimAddress)
             .from(sendMialAddress as String)
-            .subject("这里不会有乱码吧")
-            .body("我是乱码")
+            .subject(mailObject as String)
+            .body(mailBody as String)
 //            .attachment("")
 //            //or
 //            .attachments() //List<String>
@@ -306,6 +334,8 @@ class MainActivity : AppCompatActivity() {
         lateinit var mailList:List<MailItem> // 保存发送邮箱列表
         lateinit var  mDynamicListView:DynamicListView // listview
         lateinit var tinydb:TinyDB // 不能放在外面初始化
+        var mailObject:String?=null
+        var mailBody:String?=null
         fun toggleSwitch(position:Int){
             mailList[position].choosed=!mailList[position].choosed // swich button取反后对应的存储值取反
         }
