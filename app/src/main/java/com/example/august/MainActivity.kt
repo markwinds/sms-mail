@@ -17,19 +17,26 @@ import android.view.View
 import android.text.InputType
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.widget.*
 import android.widget.AdapterView
 import android.widget.Toast
+import co.nedim.maildroidx.MaildroidXType
+
+
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.example.august.lib.MaildroidX
 import com.example.august.lib.TinyDB
 import com.gordonwong.materialsheetfab.MaterialSheetFab
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener
 
 import com.nhaarman.listviewanimations.ArrayAdapter
+import javax.mail.PasswordAuthentication
+import javax.mail.Session
 import kotlin.collections.ArrayList
 
 
@@ -38,6 +45,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        //var jj=tt
+        //var jj:Session
 
         /**************第一次启动判断*************/
         var pref=getSharedPreferences("firstBoot", Context.MODE_PRIVATE)
@@ -50,6 +61,8 @@ class MainActivity : AppCompatActivity() {
         /********初始化存储***********/
         tinydb= TinyDB(getSharedPreferences("mailList", Context.MODE_PRIVATE))
         loadMailList() // 载入邮件
+        loadMailConfig()
+        sendMails()
         /***********fab**************/
         var fab = findViewById<Fab>(R.id.fab)
         var sheetView = findViewById<View>(R.id.fab_sheet)
@@ -245,6 +258,44 @@ class MainActivity : AppCompatActivity() {
 
         mDynamicListView.enableSimpleSwipeUndo() // 使能撤销
         mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView))
+    }
+
+    /**********************mail******************/
+    fun sendMail(aimAddress:String) {
+        MaildroidX.Builder()
+            .smtp(serverName as String)
+            .smtpUsername(sendMialAddress as String)
+            .smtpPassword(mailPassword as String)
+            .smtpAuthentication(true)
+            .port("465")
+            .type(MaildroidXType.HTML)
+            .to(aimAddress)
+            .from(sendMialAddress as String)
+            .subject("这里不会有乱码吧")
+            .body("我是乱码")
+//            .attachment("")
+//            //or
+//            .attachments() //List<String>
+//            .onCompleteCallback(object : MaildroidX.onCompleteCallback{
+//                override val timeout: Long = 3000
+//                override fun onSuccess() {
+//                    Log.d("MaildroidX",  "SUCCESS")
+//                }
+//                override fun onFail(errorMessage: String) {
+//                    Log.d("MaildroidX",  "FAIL")
+//                }
+//            })
+            .mail()
+    }
+    fun sendMails(){
+        if(serverName!=null && sendMialAddress!=null && mailPassword!=null)
+        {
+            if (mailList!=null){
+                for(address in mailList)
+                    if (address.choosed)
+                        sendMail(address.mail)
+            }
+        }
     }
 
     companion object{
