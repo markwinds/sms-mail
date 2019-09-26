@@ -18,6 +18,7 @@ August是一款可以将手机上的短信转发到指定邮箱的app,如果你�
 - 首次打开app的使用介绍
 - 输入合法检测
 - github release google play
+- 短信过滤
 
 ## bug
 
@@ -35,3 +36,8 @@ August是一款可以将手机上的短信转发到指定邮箱的app,如果你�
 - [app刚进入提示使用](https://github.com/sjwall/MaterialTapTargetPrompt)
 - [滚动列表下拉菜单](https://github.com/traex/ExpandableLayout)
 - [app首次安装的滑动介绍](https://github.com/sacot41/SCViewPager)
+
+## 几款同类型的app
+
+- [Transmis](https://gamedun.github.io/-----https://github.com/dss886/Transmis)能够接受电话短信，能够邮件钉钉提醒信息过滤，自定义信息接受格式
+- 
