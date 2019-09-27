@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])//将libs下的文件和工程下的所有jar文件加入编译
-    //implementation files('/home/mark/.gradle/localLib/nineoldandroids-2.4.0.jar')
+    //implementation files('libs/nineoldandroids-2.4.0.jar')//如果提示缺少这个包就加上这条
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
