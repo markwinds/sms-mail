@@ -2,31 +2,48 @@
 
 ## 简介
 
-August是一款可以将手机上的短信转发到指定邮箱的app,如果你安装了他，那么当你忘记带手机却需要手机验证码验证的时候就可以通过邮箱来查看验证码，当然你也可以用他来转发其他短信。
+![使用示范](https://img-blog.csdnimg.cn/20190927153524915.gif)
+
+August是一款可以将手机上的短信转发到指定邮箱的app,如果你安装了他，那么当你忘记带手机却需要手机验证码验证的时候就可以通过邮箱来查看验证码，当然你也可以用他来转发其他短信。具体的操作有一下几步
 
 ## 使用方法
 
-- 添加配置你的邮箱,我们将根据stmp协议来发送邮件
-- 将August挂在后台，这样他就能监听接收到的短信
+- 设置你的发件邮箱
+  - 填写你发件邮箱的服务器一般为smtp.*name*.com 其中name是qq,gmail等服务商名称
+  - 填写你发送邮件的地址
+  - 填写你发送邮件帐号的密码
+
+- 添加收件邮箱 按一下首页的浮动按钮，添加收件箱
+
+- 使能收件箱，点击对应收件箱的开关到开的位置
+
+- 将August锁定，就是不要让你的手机关闭Augusu（可以退出August但不能杀死这个进程）August只是注册了一个监听，请放心使用，他对性能和续航的影响几乎可以忽略不计
 
 ## 待开发的功能
 
-- 添加邮箱的配置信息
-- 在后台监听短信
-- 界面的美化设计
 - 状态栏提醒
 - 首次打开app的使用介绍
 - 输入合法检测
-- github release google play
 - 短信过滤
-- 添加release和gif图
 
-## bug
-
-- 转发的中文出现乱码
-- 同一条短信被重复转发
+## Bug
 
 ## Tips
+
+### August用到的开源库
+
+仓库|简介|使用中遇到的问题
+--|--|--
+[ListViewAnimations](https://github.com/nhaarman/ListViewAnimations)|一个自带动画功能的强大listview|需要自定义adpter继承自他的模板，重写特有的几个函数
+[FloatingActionButton](https://github.com/makovkastar/FloatingActionButton)|悬浮菜单按钮|其中的布局文件用到的几个组件因为android版本更新的问题已经被重新命名了，所以报错组件找不到
+[SwitchButton](https://github.com/kyleduo/SwitchButton)|就是上面演示的选择开关|在adpter中设置类似checkBox组件时要先设置监听再设置checkBox的选中状态
+[material-dialogs](https://github.com/afollestad/material-dialogs)|对话框|对于Bottom Sheets的自定义布局要先加载布局然后findViewById
+[MaterialTextField](https://github.com/florent37/MaterialTextField)|美化输入框|无
+[TinyDB](https://github.com/kcochibili/TinyDB--Android-Shared-Preferences-Turbo)|帮助你方便存储数据（arrayList等都很方便）|kotlin普通类型作为泛型传参的方法MailItem::class.java
+[maildroid](https://github.com/nedimf/maildroid)|邮件发送的封装库|发送邮件的正文部分中文乱码，可以通过重写MaildroidX类的html编码方式来解决
+[SmsVerifyCatcher](https://github.com/stfalcon-studio/SmsVerifyCatcher)|监听过滤短信|无
+
+### Android UI设计相关的开源库
 
 - [安卓UI设计库](https://gamedun.github.io/-----https://github.com/wasabeef/awesome-android-ui)
 - [material图标库](https://github.com/google/material-design-icons)
@@ -41,4 +58,3 @@ August是一款可以将手机上的短信转发到指定邮箱的app,如果你�
 ## 几款同类型的app
 
 - [Transmis](https://gamedun.github.io/-----https://github.com/dss886/Transmis)能够接受电话短信，能够邮件钉钉提醒信息过滤，自定义信息接受格式
-- 
