@@ -156,8 +156,17 @@ class MainActivity : AppCompatActivity() {
             title(R.string.putinmail) // 标题
             input(allowEmpty = false,hintRes = R.string.hint,inputType= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) { dialog, text -> // 加载自定义布局
                 var mailAddress=getInputField().text.toString() // 获取输入的邮件地址
-                if(mailList.isNotEmpty()) // 如果此时列表不为空就直接用listview的方法添加
-                    mDynamicListView.insert(0, MailItem(mailAddress,true)) // 更新列表
+                if(mailList.isNotEmpty()) {// 如果此时列表不为空就直接用listview的方法添加
+                    var haveSameMail=false
+                    for (i in 0 until mailList.size){
+                        if(mailList[i].mail==mailAddress){
+                            haveSameMail=true
+                            break
+                        }
+                    }
+                    if(!haveSameMail)
+                        mDynamicListView.insert(0, MailItem(mailAddress,true)) // 更新列表
+                }
                 else{ // 当列表为空表示vistview还没有被创建,所以手动添加列表并创建listview
                     mailList+=MailItem(mailAddress,true) // 初始化列表
                     initListView() // 初始化listview
@@ -263,8 +272,8 @@ class MainActivity : AppCompatActivity() {
             id: Long
         ): Boolean {
             if (mListView != null) {
-                /**长按的操作，下面是长按拖动的例子
-                 *mListView.startDragging(position - mListView.getHeaderViewsCount());*/
+                //长按的操作，下面是长按拖动的例子
+                 mListView.startDragging(position - mListView.getHeaderViewsCount())
             }
             return true
         }
@@ -280,7 +289,7 @@ class MainActivity : AppCompatActivity() {
         mDynamicListView.setAdapter(animAdapter) // 设置适配器
 
         mDynamicListView.enableDragAndDrop() // 使能拖拽
-        mDynamicListView.setDraggableManager(TouchViewDraggableManager(R.id.textView_receive_mail)) // 可以拖拽的位置
+        //mDynamicListView.setDraggableManager(TouchViewDraggableManager(R.id.textView_receive_mail)) // 可以拖拽的位置,这里我用的长按拖拽这里就注释掉了
         mDynamicListView.setOnItemMovedListener(MyOnItemMovedListener(myAdapter as ArrayAdapter<MailItem>)) // 移动监听
         mDynamicListView.setOnItemLongClickListener(MyOnItemLongClickListener(mDynamicListView)) // 长按操作
 
@@ -336,8 +345,14 @@ class MainActivity : AppCompatActivity() {
         lateinit var tinydb:TinyDB // 不能放在外面初始化
         var mailObject:String?=null
         var mailBody:String?=null
-        fun toggleSwitch(position:Int,isChecked:Boolean){
-            mailList[position].choosed=isChecked // swich button取反后对应的存储值取反
+        fun toggleSwitch(name:String,isChecked:Boolean){
+            for (i in 0 until mailList.size){
+                if (mailList[i].mail==name){
+                    mailList[i].choosed=isChecked
+                    break
+                }
+            }
+            //mailList[position].choosed=isChecked // swich button取反后对应的存储值取反
         }
     }
 }

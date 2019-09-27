@@ -67,17 +67,22 @@ class MailAdapter internal  constructor(private val mContext:Context, private va
         var viewHolder=ViewHolder() // 用来存放view的一些信息
         var nowData=getItem(position) // 得到要存入view的数据
 
-        if (viewBeLoad==null){ // 如果这个view里是空的，就是从未被加载过
+        /**这里如果用回收的convertView来创建新的view的话选择按钮会出错，现象为
+         * 1. 在添加新项的时候本来照代码里的逻辑初始化是选中状态，但是实际初始化状态不确定
+         * 2. 在拖动的时候有些按钮的选中状态也会被改变
+         * 如果谁能看到这里的代码，真诚希望你能帮忙解决我的疑惑，万分感激*/
+
+//        if (viewBeLoad==null){ // 如果这个view里是空的，就是从未被加载过
             viewBeLoad=LayoutInflater.from(mContext).inflate(layoutId,parent,false) // 得到这个view
             viewHolder.mailName=viewBeLoad.findViewById(com.example.august.R.id.textView_receive_mail) // 获得这个view的text的id
             viewHolder.switchButton=viewBeLoad.findViewById(com.example.august.R.id.switch_button) // 获得button的id
-            viewBeLoad.tag=viewHolder
-        }else{ // 如果已经被加载过
-            viewHolder=viewBeLoad!!.tag as ViewHolder // 将从view中取出的数据存入viewHolder
-        }
+//            viewBeLoad.tag=viewHolder
+//        }else{ // 如果已经被加载过
+//            viewHolder=viewBeLoad!!.tag as ViewHolder // 将从view中取出的数据存入viewHolder
+//        }
         viewHolder.switchButton!!.setOnCheckedChangeListener { buttonView, isChecked ->
 
-            MainActivity.toggleSwitch(position,isChecked) // 点击反转数据
+            MainActivity.toggleSwitch(nowData.mail,isChecked) // 点击反转数据
         }
 
         viewHolder.mailName!!.text=nowData!!.mail // 将当前的mail信息放入text
