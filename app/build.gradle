@@ -11,8 +11,8 @@ android {
         applicationId "com.example.august"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 2 //这里是整数
+        versionName "2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -40,9 +40,11 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     /**用的的github上的第三方库*/
-    //implementation 'com.github.traex.expandablelayout:library:1.2.3'//滚动列表下拉菜单
     implementation 'com.nhaarman.listviewanimations:lib-core:3.1.0@aar'//动画listview
     implementation 'com.nhaarman.listviewanimations:lib-manipulation:3.1.0@aar'
     implementation 'com.nhaarman.listviewanimations:lib-core-slh:3.1.0@aar'
@@ -67,8 +69,8 @@ dependencies {
     implementation 'com.sun.mail:android-activation:1.6.2'
     implementation 'com.tuenti.smsradar:library:1.0.4'//message
     implementation 'com.github.stfalcon:smsverifycatcher:0.3.2'
+    implementation("com.squareup.okhttp3:okhttp:4.2.1")//http
+    implementation 'com.github.tiagohm.MarkdownView:library:0.19.0'//markdown
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
 }

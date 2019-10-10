@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">August</string>
+    <string name="itemdeleted">已删除收件箱</string>
+    <string name="taptoundo">点击取消删除</string>
+    <string name="hintdeleteaddress">您已删除收件人地址</string>
+
+    <string name="getpermission">要正常运行必须获取该权限</string>
+    <string name="smstitle">手机短信 </string>
+
+    <string name="config">设置发件人</string>
+    <string name="add">添加收件人</string>
+
+    <string name="serverchan">Server酱</string>
+    <string name="receiverlist">收件人列表</string>
+    <string name="serverchankey">Server酱密钥</string>
+    <string name="serverchantitle">输入你的密钥</string>
+    <string name="serverchanhint">Server酱绑定账户的后给你的密钥</string>
+    <string name="checkserverchan">查看微信检查August是否连接成功</string>
+
+    <string name="submit">提交</string>
+    <string name="hint">mark@qq.com</string>
+    <string name="putinmail">输入你想接收邮件的地址</string>
+    <string name="configmail">设置</string>
+    <string name="showPassword">显示密码</string>
+    <string name="serverhint">例子: smtp.qq.com</string>
+    <string name="mailhint">输入发件人邮件地址</string>
+    <string name="passwordhint">密码</string>
+    <string name="servername">服务器</string>
+    <string name="mailaddress">邮件地址</string>
+    <string name="save">保存</string>
+    <string name="testconnect">测试与服务器连接</string>
+    <string name="serverporthint">服务器端口</string>
+    <string name="connectsuccessful">连接成功</string>
+    <string name="connectfail">连接失败!</string>
+    <string name="help">帮助</string>
+    <string name="helptitle">帮助页面</string>
+
+</resources>

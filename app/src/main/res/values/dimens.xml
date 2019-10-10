@@ -7,7 +7,7 @@
     <dimen name="fab_list_spacing">88dp</dimen>
 
     <dimen name="sheet_width">210dp</dimen>
-    <dimen name="sheet_spacing">40dp</dimen>
+    <dimen name="sheet_spacing">20dp</dimen>
     <dimen name="sheet_item_spacing">@dimen/keyline_spacing</dimen>
     <dimen name="sheet_item_image_spacing">24dp</dimen>
     <dimen name="sheet_item_textsize">16sp</dimen>
@@ -46,5 +46,7 @@
 
     <dimen name="listCircle">8sp</dimen>
 
+
+    <dimen name="serverchan_textsize">20sp</dimen>
 
 </resources>

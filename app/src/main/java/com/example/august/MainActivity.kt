@@ -3,6 +3,7 @@ package com.example.august
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter
 import com.nhaarman.listviewanimations.appearance.simple.ScaleInAnimationAdapter
 import com.nhaarman.listviewanimations.appearance.simple.SwingBottomInAnimationAdapter
@@ -21,6 +22,9 @@ import android.util.Log
 import android.widget.*
 import android.widget.AdapterView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import br.tiagohm.markdownview.MarkdownView
+import br.tiagohm.markdownview.css.styles.Github
 import co.nedim.maildroidx.MaildroidXType
 
 
@@ -29,6 +33,8 @@ import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.isItemChecked
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.august.lib.MaildroidX
 import com.example.august.lib.TinyDB
 import com.gordonwong.materialsheetfab.MaterialSheetFab
@@ -37,9 +43,16 @@ import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedList
 import com.nhaarman.listviewanimations.ArrayAdapter
 import com.stfalcon.smsverifycatcher.OnSmsCatchListener
 import com.stfalcon.smsverifycatcher.SmsVerifyCatcher
+import com.suke.widget.SwitchButton
 import com.tuenti.smsradar.Sms
 import com.tuenti.smsradar.SmsListener
 import com.tuenti.smsradar.SmsRadar
+import kotlinx.android.synthetic.main.custom_view.*
+import okhttp3.*
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.logging.Logger
 import javax.mail.PasswordAuthentication
 import javax.mail.Session
 import kotlin.collections.ArrayList
@@ -47,17 +60,19 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var smsVerifyCatcher:SmsVerifyCatcher
+    //lateinit var smsVerifyCatcher:SmsVerifyCatcher
+    lateinit var mySmsObserver: MySmsObserver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        mContext=this@MainActivity
 
         /**************第一次启动判断*************/
         var pref=getSharedPreferences("firstBoot", Context.MODE_PRIVATE)
         var firstBoot=pref.getBoolean("booted",true)
         if (firstBoot){ // 如果是第一次启动
-            var editor=pref.edit()
+            //var editor=pref.edit()
             //editor.putBoolean("booted",false)//标记为不是第一次启动
         }
 
@@ -75,37 +90,57 @@ class MainActivity : AppCompatActivity() {
 
         var configButton=findViewById<View>(R.id.fab_sheet_item_config)
         var creatButton=findViewById<View>(R.id.fab_sheet_item_add)
+        var helpButton=findViewById<View>(R.id.fab_sheet_item_help)
+        var serverChanKey=findViewById<View>(R.id.fab_sheet_item_server_chan)
         configButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                configMail()
+                selectMailType()
             }})
         creatButton.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
                 getMailAddress()
             }})
+        helpButton.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                showHelpPage()
+            }})
+        serverChanKey.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                configServerChanKey()
+            }})
 
-        /***************listview*****************/
+        /*********************************************************************************listview*****************/
         mDynamicListView=findViewById<DynamicListView>(R.id.dynamiclistview) // 找到listview
         if(mailList.isNotEmpty()) // 不为空才初始化，防止空报错
             initListView()
 
-        /**************************启动服务**********************/
-        smsVerifyCatcher= SmsVerifyCatcher(this@MainActivity,object : OnSmsCatchListener<String>{
-            override fun onSmsCatch(message: String?) {
-                mailObject="手机短信"
-                mailBody=message
-                sendMails()
-            }
-        })
+        /****************************************************************************serverchan****************************/
+        var serverChan=findViewById<ConstraintLayout>(R.id.serverchan_layout)
+        var serverChanName=serverChan.findViewById<TextView>(R.id.textView_receive_mail)
+        var serverChanButton=serverChan.findViewById<SwitchButton>(R.id.switch_button)
+        serverChanName.setText(this.getResources().getString(R.string.serverchan))
+        serverChanButton.setOnCheckedChangeListener { buttonView, isChecked ->
+            serverChanSwitch=isChecked
+        }
+        if(serverChanSwitch)
+            serverChanButton.setChecked(true)
+        else
+            serverChanButton.setChecked(false)
 
-        smsVerifyCatcher.onStart()
+        /***********************************************************************************启动服务**********************/
+        mySmsObserver= MySmsObserver(this, Handler())
+        mySmsObserver.registerSMSObserver()
+//        smsVerifyCatcher= SmsVerifyCatcher(this@MainActivity,object : OnSmsCatchListener<String>{
+//            override fun onSmsCatch(message: String?) {
+//                mailObject="手机短信"
+//                mailBody=message
+//                sendMails()
+//            }
+//        })
+//
+//        smsVerifyCatcher.onStart()
 
     }//onCreat
-
-//    override fun onStop() {
-//        super.onStop()
-//        smsVerifyCatcher.onStop()
-//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -113,11 +148,12 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        smsVerifyCatcher.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        mySmsObserver.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onPause() {
         saveMailList() // 保存数据,当活动的内存被清理的时候，也就是list清空之前
+        saveMailConfig()
         super.onPause()
     }
 
@@ -128,6 +164,9 @@ class MainActivity : AppCompatActivity() {
         editor.putString("serverName",serverName)
         editor.putString("sendMialAddress",sendMialAddress)
         editor.putString("mailPassword",mailPassword)
+        editor.putString("serverPort", serverPort)
+        editor.putBoolean("serverChan", serverChanSwitch)
+        editor.putString("serverChanKey", serverChanKey)
         editor.apply() // 提交保存
     }
 
@@ -137,6 +176,9 @@ class MainActivity : AppCompatActivity() {
         serverName=pref.getString("serverName",null) // 如果该值不存在就返回null
         sendMialAddress=pref.getString("sendMialAddress",null)
         mailPassword=pref.getString("mailPassword",null)
+        serverPort=pref.getString("serverPort", null)
+        serverChanSwitch=pref.getBoolean("serverChan", true)
+        serverChanKey=pref.getString("serverChanKey", "nothing") as String
     }
 
     /**保存邮件列表*/
@@ -150,25 +192,56 @@ class MainActivity : AppCompatActivity() {
         mailList= tinydb.getListObject("mailList", MailItem::class.java) as List<MailItem>
     }
 
-/***************************************dialog操作函数******************************************/
+
+/**************************************************************************dialog操作函数******************************************/
+    fun configServerChanKey(){
+    MaterialDialog(this).show {
+        title(R.string.serverchantitle) // 标题
+        input(allowEmpty = false,hintRes = R.string.serverchanhint, prefill= serverChanKey) { dialog, text -> // 加载自定义布局
+            serverChanKey=getInputField().text.toString() // 获取输入的邮件地址
+            tryHttp("http://sc.ftqq.com/"+serverChanKey+".send?text=Connection test&desp=August has connect to serverchan "+getDate())
+            Toast.makeText(this@MainActivity,R.string.checkserverchan, Toast.LENGTH_LONG).show()
+        }
+        positiveButton(R.string.submit)
+        negativeButton(android.R.string.cancel)
+        cornerRadius(10f) // 角半径
+    }
+    }
+
+    fun showHelpPage(){
+        MaterialDialog(this@MainActivity, BottomSheet()).show {
+            customView(R.layout.help_view, scrollable = true, horizontalPadding = true) // 布局文件必须放在最前面，不然后面findViewById会返回空
+            cornerRadius(20f) // 角半径
+            title(R.string.helptitle)
+            var mMarkdownView = findViewById<MarkdownView>(R.id.markdown_view)
+            var css=Github()
+            css.addRule("body", "padding: 0in")
+            mMarkdownView.addStyleSheet(css)
+            //mMarkdownView.loadMarkdown("**MarkdownView**")
+            mMarkdownView.loadMarkdownFromAsset("help.md")
+//             mMarkdownView.loadMarkdownFromFile(new File())
+//             mMarkdownView.loadMarkdownFromUrl("url")
+        }
+    }
+
     fun getMailAddress(){ // 添加邮件
         MaterialDialog(this).show {
             title(R.string.putinmail) // 标题
             input(allowEmpty = false,hintRes = R.string.hint,inputType= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) { dialog, text -> // 加载自定义布局
                 var mailAddress=getInputField().text.toString() // 获取输入的邮件地址
-                if(mailList.isNotEmpty()) {// 如果此时列表不为空就直接用listview的方法添加
+                if(MainActivity.mailList.isNotEmpty()) {// 如果此时列表不为空就直接用listview的方法添加
                     var haveSameMail=false
-                    for (i in 0 until mailList.size){
-                        if(mailList[i].mail==mailAddress){
+                    for (i in 0 until MainActivity.mailList.size){
+                        if(MainActivity.mailList[i].mail==mailAddress){
                             haveSameMail=true
                             break
                         }
                     }
                     if(!haveSameMail)
-                        mDynamicListView.insert(0, MailItem(mailAddress,true)) // 更新列表
+                        MainActivity.mDynamicListView.insert(0, MailItem(mailAddress,true)) // 更新列表
                 }
                 else{ // 当列表为空表示vistview还没有被创建,所以手动添加列表并创建listview
-                    mailList+=MailItem(mailAddress,true) // 初始化列表
+                    MainActivity.mailList +=MailItem(mailAddress,true) // 初始化列表
                     initListView() // 初始化listview
                 }
             }
@@ -178,7 +251,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun configMail(){ // 修改邮件
+    fun configMail(id:Int){ // 修改邮件
         MaterialDialog(this@MainActivity, BottomSheet()).show {
             customView(R.layout.custom_view, scrollable = true, horizontalPadding = true) // 布局文件必须放在最前面，不然后面findViewById会返回空
             cornerRadius(20f) // 角半径
@@ -186,9 +259,19 @@ class MainActivity : AppCompatActivity() {
             var checkBox=findViewById<CheckBox>(R.id.showPassword)
             var passwordEdit=findViewById<EditText>(R.id.password)
             var serverEdit=findViewById<EditText>(R.id.server_name)
+            var portEdit=findViewById<EditText>(R.id.server_port)
             var mailEdit=findViewById<EditText>(R.id.mail_address)
+            if(id!=0){
+                serverName= mailTypeServer[id]
+                serverPort= mailTypePort[id]
+            }else{
+                serverName=null
+                serverPort=null
+            }
             if (serverName!=null)
                 serverEdit.setText(serverName)
+            if(serverPort!=null)
+                portEdit.setText(serverPort)
             if (sendMialAddress!=null)
                 mailEdit.setText(sendMialAddress)
             if (mailPassword!=null)
@@ -200,10 +283,20 @@ class MainActivity : AppCompatActivity() {
                     else
                         passwordEdit.setTransformationMethod(PasswordTransformationMethod.getInstance())
                 }})
+            var testConnectButton=findViewById<Button>(R.id.test_connect)
+            testConnectButton.setOnClickListener(object : View.OnClickListener{
+                override fun onClick(v: View?) {
+                    serverName=serverEdit.text.toString()
+                    serverPort=portEdit.text.toString()
+                    sendMialAddress=mailEdit.text.toString()
+                    mailPassword=passwordEdit.text.toString()
+                    sendMail(sendMialAddress as String,true)
+                }})
             title(R.string.configmail)
             positiveButton(R.string.save) { dialog ->
                 /**按下保存键的操作*/
                 serverName=serverEdit.text.toString()
+                serverPort=portEdit.text.toString()
                 sendMialAddress=mailEdit.text.toString()
                 mailPassword=passwordEdit.text.toString()
                 saveMailConfig() // 确认之后存放数据
@@ -211,6 +304,21 @@ class MainActivity : AppCompatActivity() {
             negativeButton(android.R.string.cancel)
 
         }
+    }
+
+    fun selectMailType(){
+        val dialog=MaterialDialog(this).show {
+            listItemsSingleChoice(items = mailType, initialSelection = 1){ dialog, index, text ->
+                // Invoked when the user selects an item
+                var i=0
+                while (!dialog.isItemChecked(i)){
+                    i++
+                }
+                configMail(i)
+            }
+            positiveButton(R.string.submit)
+        }
+
     }
 
 /***********************************************ListView操作函数*****************************************************/
@@ -228,7 +336,7 @@ class MainActivity : AppCompatActivity() {
             }
             mToast = Toast.makeText(
                 this@MainActivity,
-                "You have delete a mail address!", // 被删除的时候显示这句提示
+                this@MainActivity.getResources().getString(R.string.hintdeleteaddress), // 被删除的时候显示这句提示
                 Toast.LENGTH_LONG
             )
             mToast!!.show()
@@ -297,47 +405,24 @@ class MainActivity : AppCompatActivity() {
         mDynamicListView.setOnItemClickListener(MyOnItemClickListener(mDynamicListView))
     }
 
-    /**********************mail******************/
-    fun sendMail(aimAddress:String) {
-        MaildroidX.Builder()
-            .smtp(serverName as String)
-            .smtpUsername(sendMialAddress as String)
-            .smtpPassword(mailPassword as String)
-            .smtpAuthentication(true)
-            .port("465")
-            .type(MaildroidXType.HTML)
-            .to(aimAddress)
-            .from(sendMialAddress as String)
-            .subject(mailObject as String)
-            .body(mailBody as String)
-//            .attachment("")
-//            //or
-//            .attachments() //List<String>
-//            .onCompleteCallback(object : MaildroidX.onCompleteCallback{
-//                override val timeout: Long = 3000
-//                override fun onSuccess() {
-//                    Log.d("MaildroidX",  "SUCCESS")
-//                }
-//                override fun onFail(errorMessage: String) {
-//                    Log.d("MaildroidX",  "FAIL")
-//                }
-//            })
-            .mail()
-    }
-    fun sendMails(){
-        if(serverName!=null && sendMialAddress!=null && mailPassword!=null)
-        {
-            if (mailList!=null){
-                for(address in mailList)
-                    if (address.choosed)
-                        sendMail(address.mail)
-            }
-        }
+    /********************************************************data**********************************************/
+    fun getDate():String{
+        var date = Date(System.currentTimeMillis())
+        return date.toString()
     }
 
+    /**************************************************************************************************************/
     companion object{
         /**保存邮箱配置信息的变量*/
+        lateinit var mContext:Context
+        var mHttpClient = OkHttpClient()
+        var serverChanSwitch=true
+        var serverChanKey:String="nothing"
+        val mailType=listOf("others", "Gmail", "QQ", "Outlook", "163", "Sina")
+        val mailTypeServer= listOf("0", "smtp.gmail.com", "smtp.qq.com", "smtp.office365.com", "smtp.163.com", "smtp.sina.com")
+        val mailTypePort= listOf("0", "465", "465", "587", "465", "465")
         var serverName:String?=null
+        var serverPort:String?=null
         var sendMialAddress:String?=null
         var mailPassword:String?=null
         lateinit var mailList:List<MailItem> // 保存发送邮箱列表
@@ -353,6 +438,65 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             //mailList[position].choosed=isChecked // swich button取反后对应的存储值取反
+        }
+        /**********************mail******************/
+        fun sendMail(aimAddress:String, hint:Boolean) {
+            MaildroidX.Builder()
+                .smtp(if(serverName!=null) serverName as String else " ")
+                .smtpUsername(if(sendMialAddress!=null) sendMialAddress as String else " ")
+                .smtpPassword(if(mailPassword!=null) mailPassword as String else " ")
+                .smtpAuthentication(true)
+                .port(if(serverPort!=null) serverPort as String else " ")
+                .type(MaildroidXType.HTML)
+                .to(aimAddress)
+                .from(if(sendMialAddress!=null) sendMialAddress as String else " ")
+                .subject(if(mailObject!=null) mailObject as String else "Test")
+                .body(if(mailBody!=null) mailBody as String else "August connect successful")
+//            .attachment("")
+//            //or
+//            .attachments() //List<String>
+            .onCompleteCallback(object : MaildroidX.onCompleteCallback{
+                override val timeout: Long = 3000
+                override fun onSuccess() {
+                    if(hint)
+                        Toast.makeText(MainActivity.mContext, mContext.getString(R.string.connectsuccessful), Toast.LENGTH_SHORT).show()
+                }
+                override fun onFail(errorMessage: String) {
+                    if(hint)
+                        Toast.makeText(MainActivity.mContext, mContext.getString(R.string.connectfail), Toast.LENGTH_SHORT).show()
+                }
+            })
+                .mail()
+        }
+        fun sendMails(){
+            if(serverName!=null && sendMialAddress!=null && mailPassword!=null)
+            {
+                if (mailList!=null){
+                    for(address in mailList)
+                        if (address.choosed)
+                            sendMail(address.mail,false)
+                }
+            }
+            if(serverChanSwitch){
+                tryHttp("http://sc.ftqq.com/"+serverChanKey+".send?text="+mailObject+"&desp="+ mailBody)
+            }
+        }
+
+        /*********************************okhttp*******************************/
+        fun tryHttp(url:String):String{
+            var successful=false
+            var date=" "
+            object : Thread() {
+                override fun run() {
+                    var request=Request.Builder()
+                        .url(url)
+                        .build()
+                    var response = mHttpClient.newCall(request).execute()
+                    //successful=response.body.toString().contains("e")
+                    date= response.body.toString()
+                }
+            }.start()
+            return date
         }
     }
 }

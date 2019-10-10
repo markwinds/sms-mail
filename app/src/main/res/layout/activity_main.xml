@@ -14,9 +14,9 @@
     android:layout_height="match_parent">
 
     <!-- 智能layout 防遮挡 -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
 
         <!--- 智能菜单栏，自动缩回 -->
 <!--        <com.google.android.material.appbar.AppBarLayout-->
@@ -38,12 +38,35 @@
 <!--            &lt;!&ndash;                android:id="@+id/tabs"/>&ndash;&gt;-->
 <!--        </com.google.android.material.appbar.AppBarLayout>-->
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+<!--        <TextView-->
+<!--            android:text="@string/serverchan"-->
+<!--            android:textSize="@dimen/serverchan_textsize"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
+
+        <include android:id="@+id/serverchan_layout" layout="@layout/itemrow_gripview"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+<!--        <TextView-->
+<!--            android:text="@string/receiverlist"-->
+<!--            android:textSize="@dimen/serverchan_textsize"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
+
         <com.nhaarman.listviewanimations.itemmanipulation.DynamicListView
             android:id="@+id/dynamiclistview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+    </LinearLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+<!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
 
     <!-- Your FAB implementation -->
     <com.example.august.Fab
@@ -84,6 +107,18 @@
                     android:id="@+id/fab_sheet_item_config"
                     android:drawableStart="@drawable/ic_fab_item_config"
                     android:text="@string/config" />
+
+                <TextView
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:id="@+id/fab_sheet_item_help"
+                    android:drawableStart="@drawable/ic_fab_item_help"
+                    android:text="@string/help" />
+
+                <TextView
+                    style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                    android:id="@+id/fab_sheet_item_server_chan"
+                    android:drawableStart="@drawable/ic_fab_item_server_chan"
+                    android:text="@string/serverchankey" />
 
 
 <!--                &lt;!&ndash; Photo &ndash;&gt;-->

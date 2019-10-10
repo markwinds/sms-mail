@@ -1,42 +1,45 @@
 <resources>
     <string name="app_name">August</string>
-    <string name="itemdeleted">Mail deleted</string>
+    <string name="itemdeleted">Mail address deleted</string>
     <string name="taptoundo">Tap to undo</string>
+    <string name="hintdeleteaddress">You have delete a mail address!</string>
 
-    <string name="config">Config send mail</string>
-    <string name="add">Add receive mail</string>
+    <string name="getpermission">Sorry, August must get this permission!</string>
+    <string name="smstitle">SMS from </string>
+
+    <string name="config">Config sender</string>
+    <string name="add">Add receiver</string>
+
+    <string name="serverchan">ServerChan</string>
+    <string name="receiverlist">Receiver list</string>
+    <string name="serverchankey">ServerChan key</string>
+    <string name="serverchantitle">Put in ServerChan key</string>
+    <string name="serverchanhint">The key you get from ServerChan</string>
+    <string name="checkserverchan">Check you WeChat to confirm whether August has connect</string>
+<!--    <string name="serverchanbutton"></string>-->
 
     <string name="submit">Submit</string>
     <string name="hint">mark@gmail.com</string>
-    <string name="putinmail">Put in you mail address that you want receive mail.</string>
+    <string name="putinmail">Put in mail address that you want receive mail.</string>
     <string name="configmail">Setting</string>
     <string name="showPassword">Show password</string>
     <string name="serverhint">Server like: smtp.gmail.com</string>
-    <string name="mailhint">Mail address like: mark@gmail.com</string>
+    <string name="mailhint">Sender address like: mark@gmail.com</string>
     <string name="passwordhint">Password</string>
     <string name="servername">Server</string>
     <string name="mailaddress">Mail address</string>
     <string name="save">Save</string>
+    <string name="testconnect">Test connection</string>
+    <string name="serverporthint">Smtp port</string>
+    <string name="connectsuccessful">Connect successful!</string>
+    <string name="connectfail">Connect failed!!</string>
+    <string name="help">Help</string>
+    <string name="helptitle">Help page</string>
+<!--    <string name="helpbody">-->
+<!--    </string>-->
 
 
 
 
 
-
-
-    <string name="all">All</string>
-    <string name="createnote">Create note</string>
-    <string name="closedrawer">Close drawer</string>
-    <string name="favorites">Favorites</string>
-    <string name="notes">Notes</string>
-    <string name="opendrawer">Open drawer</string>
-    <string name="photo">Photo</string>
-    <string name="recording">Recording</string>
-    <string name="refresh">Refresh</string>
-    <string name="reminder">Reminder</string>
-    <string name="search">Search</string>
-    <string name="shared">Shared</string>
-    <string name="sheet_item_pressed">Item pressed</string>
-    <string name="snackbar_shared_msg">Gordon Wong shared a note with you.</string>
-    <string name="view">View</string>
 </resources>
