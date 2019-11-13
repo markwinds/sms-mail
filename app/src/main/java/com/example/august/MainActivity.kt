@@ -1,9 +1,11 @@
 package com.example.august
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Telephony
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter
 import com.nhaarman.listviewanimations.appearance.simple.ScaleInAnimationAdapter
 import com.nhaarman.listviewanimations.appearance.simple.SwingBottomInAnimationAdapter
@@ -68,6 +70,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         mContext=this@MainActivity
 
+        /***********************设置为系统默认的短信app*************************/
+        var defaultSmsApp:String = "null"
+        var currentPn = getPackageName() //获取当前程序包名
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
+        {
+            defaultSmsApp = Telephony.Sms.getDefaultSmsPackage(this) //获取手机当前设置的默认短信应用的包名
+        }
+        if (!defaultSmsApp.equals(currentPn)) {
+            var intent = Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT)
+            intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, currentPn)
+            startActivity(intent)
+        }
+
         /**************第一次启动判断*************/
         var pref=getSharedPreferences("firstBoot", Context.MODE_PRIVATE)
         var firstBoot=pref.getBoolean("booted",true)
@@ -128,8 +143,8 @@ class MainActivity : AppCompatActivity() {
             serverChanButton.setChecked(false)
 
         /***********************************************************************************启动服务**********************/
-        mySmsObserver= MySmsObserver(this, Handler())
-        mySmsObserver.registerSMSObserver()
+//        mySmsObserver= MySmsObserver(this, Handler())
+//        mySmsObserver.registerSMSObserver()
 //        smsVerifyCatcher= SmsVerifyCatcher(this@MainActivity,object : OnSmsCatchListener<String>{
 //            override fun onSmsCatch(message: String?) {
 //                mailObject="手机短信"
