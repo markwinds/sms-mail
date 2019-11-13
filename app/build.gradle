@@ -11,8 +11,8 @@ android {
         applicationId "com.example.august"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 2 //这里是整数
-        versionName "2.1"
+        versionCode 3 //这里是整数
+        versionName "2.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

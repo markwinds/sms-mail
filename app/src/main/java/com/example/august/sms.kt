@@ -23,6 +23,7 @@ class MySmsObserver(activitya: Context, handler:Handler): ContentObserver(handle
     lateinit var language:String
     lateinit var hintPernission:String
     lateinit var hintPhoneMail:String
+    //lateinit var lastSameMessageTime
     var address="address"
     var body="body"
 
@@ -31,15 +32,18 @@ class MySmsObserver(activitya: Context, handler:Handler): ContentObserver(handle
         language = Locale.getDefault().getLanguage()
         hintPernission=activity.getResources().getString(R.string.getpermission)
         hintPhoneMail=activity.getResources().getString(R.string.smstitle)
+        //lastSameMessageTime=0
 
     }
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
         getSMSFromPhone()
-        MainActivity.mailObject=hintPhoneMail+address
-        MainActivity.mailBody=body
-        MainActivity.sendMails()
+        if(MainActivity.mailBody!=body || MainActivity.mailObject!=hintPhoneMail+address){ //如果相邻两条短信的内容不同则发送
+            MainActivity.mailObject=hintPhoneMail+address
+            MainActivity.mailBody=body
+            MainActivity.sendMails()
+        }
     }
 
     fun getSMSFromPhone(){
